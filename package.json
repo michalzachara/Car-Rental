@@ -1,0 +1,22 @@
+{
+  "name": "projektwypozyczalnia",
+  "version": "1.0.0",
+  "description": "---",
+  "main": "index.js",
+  "scripts": {
+    "build": "cd frontend && npm run build && cd ../backend && npm run build",
+    "start": "cd backend && npm run start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michalzachara/Car-Rental.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/michalzachara/Car-Rental/issues"
+  },
+  "homepage": "https://github.com/michalzachara/Car-Rental#readme"
+}
