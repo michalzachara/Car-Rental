@@ -1,5 +1,6 @@
+
 export default function AdminPage() {
   return (
-    <div>AdminPage</div>
+    <h1>Panel</h1>
   )
 }

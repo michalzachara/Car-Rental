@@ -13,14 +13,14 @@ export function ChangeThemeSwitch() {
 
   return (
     <div className="flex items-center gap-2">
-      <Sun className="h-4 w-4" />
+      <Sun className="h-5 w-5" />
       
       <Switch
         checked={isDark}
         onCheckedChange={toggleTheme}
       />
       
-      <Moon className="h-4 w-4" />
+      <Moon className="h-5 w-5" />
     </div>
   )
 }

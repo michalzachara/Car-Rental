@@ -1,16 +1,70 @@
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
 
 import HomeLayout from './layout/HomeLayout'
-import AdminPage from './pages/AdminPage'
+import Panel from './pages/Admin/Panel'
 import Home from './pages/Home'
+import AuthLayout from './layout/AuthLayout'
+import LoginPage from './pages/LoginPage'
+import SignUpPage from './pages/SignUpPage'
+import SettingsPage from './pages/SettingsPage'
+import MyReservations from './pages/MyReservations'
+import AdminLayout from './layout/AdminLayout'
+import CreateCar from './pages/Admin/CreateCar'
+import Reservations from './pages/Admin/Reservations'
+import { RequireAdmin } from './components/guard/RequiredAdmin'
+import { RequireNotLogIn } from './components/guard/RequiredNotLogged'
+import { RequireAuth } from './components/guard/RequiredAuth'
 
 export const router = createBrowserRouter([
 	{
 		path: '/',
-		element: <HomeLayout />,
+		Component: HomeLayout,
 		children: [
-			{ index: true, element: <Home /> },
-			{ path: 'admin', element: <AdminPage /> },
+			{ index: true, Component: Home },
+			{
+				path: 'admin',
+				element: <RequireAdmin />,
+				children: [
+					{
+						Component: AdminLayout,
+						children: [
+							{ index: true, Component: Panel },
+							{ path: 'create-car', Component: CreateCar },
+							{ path: 'reservations', Component: Reservations },
+						],
+					},
+				],
+			},
+			{
+				path: 'auth',
+				element: <RequireNotLogIn />,
+				children: [
+					{
+						Component: AuthLayout,
+						children: [
+							{ path: 'login', Component: LoginPage },
+							{ path: 'register', Component: SignUpPage },
+						],
+					},
+				],
+			},
+			{
+				element: <RequireAuth />,
+				children: [
+					{
+						path: 'settings',
+						Component: SettingsPage,
+					},
+					{
+						path: 'my-reservations',
+						Component: MyReservations,
+					},
+				],
+			},
 		],
+	},
+	{
+		path: '*',
+		element: <Navigate to="/" replace />,
 	},
 ])
