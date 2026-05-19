@@ -148,3 +148,101 @@ export const deleteCar = async (req, res) => {
 		})
 	}
 }
+
+export const getAllCars = async (req, res) => {
+	try {
+		const cars = await Car.find().select('brand model category picture pricePerDay').sort({ createdAt: -1 })
+
+		res.status(200).json({
+			success: true,
+			count: cars.length,
+			data: cars,
+		})
+	} catch (error) {
+		res.status(500).json({
+			success: false,
+			message: 'Błąd podczas pobierania samochodów',
+		})
+	}
+}
+
+export const getCarById = async (req, res) => {
+	try {
+		const car = await Car.findById(req.params.id)
+
+		if (!car) {
+			return res.status(404).json({
+				success: false,
+				message: 'Nie znaleziono auta',
+			})
+		}
+
+		res.status(200).json({
+			success: true,
+			data: car,
+		})
+	} catch (error) {
+		res.status(500).json({
+			success: false,
+			message: 'Błąd podczas pobierania auta',
+		})
+	}
+}
+
+export const updateCar = async (req, res) => {
+	try {
+		const { brand, model, category, productionYear, fuelType, gearbox, seats, pricePerDay, picture } = req.body
+
+		if (!brand || !model || !category || !productionYear || !fuelType || !seats || !pricePerDay || !picture) {
+			return res.status(400).json({
+				success: false,
+				message: 'Wszystkie wymagane pola muszą być uzupełnione',
+			})
+		}
+
+		if (productionYear < 1900 || productionYear > new Date().getFullYear()) {
+			return res.status(400).json({
+				success: false,
+				message: 'Niepoprawny rok produkcji',
+			})
+		}
+
+		if (seats <= 0) {
+			return res.status(400).json({
+				success: false,
+				message: 'Liczba miejsc musi być większa od 0',
+			})
+		}
+
+		if (pricePerDay <= 0) {
+			return res.status(400).json({
+				success: false,
+				message: 'Cena musi być większa od 0',
+			})
+		}
+
+		const car = await Car.findByIdAndUpdate(
+			req.params.id,
+			{ brand, model, category, productionYear, fuelType, gearbox, seats, pricePerDay, picture },
+			{ new: true, runValidators: true },
+		)
+
+		if (!car) {
+			return res.status(404).json({
+				success: false,
+				message: 'Nie znaleziono auta',
+			})
+		}
+
+		res.status(200).json({
+			success: true,
+			message: 'Auto zostało zaktualizowane',
+			data: car,
+		})
+	} catch (error) {
+		res.status(500).json({
+			success: false,
+			message: 'Błąd podczas aktualizacji auta',
+		})
+	}
+}

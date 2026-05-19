@@ -1,21 +1,26 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
 
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 import { Label } from '@/components/ui/label'
-import { addCar, type CreateCarData } from '@/api/admin'
+import { getCarById, updateCar, type CreateCarData } from '@/api/admin'
 
 import { toast } from 'sonner'
 import { useAuthStore } from '@/lib/useAuthStore'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
+import { useNavigate, useParams } from 'react-router-dom'
 
-export default function AddCarForm() {
-	const [loading, setLoading] = useState(false)
+export default function EditCarForm() {
+	const { id } = useParams<{ id: string }>()
+	const navigate = useNavigate()
+	const { token } = useAuthStore()
+	const [loading, setLoading] = useState(true)
+	const [errors, setErrors] = useState<Record<string, string>>({})
 
 	const [formData, setFormData] = useState<Omit<CreateCarData, 'seats' | 'pricePerDay' | 'productionYear'> & {
     seats: number | ''
@@ -33,9 +38,28 @@ export default function AddCarForm() {
 		picture: '',
 	})
 
-	const [errors, setErrors] = useState<Record<string, string>>({})
-	const { token } = useAuthStore()
-	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	useEffect(() => {
+		const fetchCar = async () => {
+			if (!id || !token) return
+			try {
+				const response = await getCarById(id, token)
+				if (response.success && response.data) {
+					setFormData(response.data)
+				} else {
+					toast.error(response.message, {
+						position: 'top-center',
+					})
+				}
+			} catch {
+				toast.error('Błąd pobierania danych auta', { position: 'top-center' })
+			} finally {
+				setLoading(false)
+			}
+		}
+		fetchCar()
+	}, [id, token])
+
+		const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target
 
     setFormData({
@@ -69,28 +93,17 @@ export default function AddCarForm() {
 
 		try {
 			setLoading(true)
+			if (!token || !id) return
 
-			if (!token)
-				toast.error('Bład logowania', {
-					position: 'top-center',
-				})
-
-			const response = await addCar(formData as CreateCarData, token)
-			if (response.success)
-				toast.success('Pomyslnie dodano auto', {
-					position: 'top-center',
-				})
-			else {
-				toast.error(response.message, {
-					position: 'top-center',
-				})
+			const response = await updateCar(id, formData as CreateCarData, token)
+			if (response.success) {
+				toast.success('Zaktualizowano auto', { position: 'top-center' })
+				navigate('/admin/cars')
+			} else {
+				throw new Error()
 			}
-
-			if (!response.success) throw new Error('blad podczas dodawania auta')
 		} catch {
-			toast.error('Bład podczas dodawania auta', {
-				position: 'top-center',
-			})
+			toast.error('Błąd podczas aktualizacji', { position: 'top-center' })
 		} finally {
 			setLoading(false)
 		}
@@ -98,67 +111,56 @@ export default function AddCarForm() {
 
 	return (
 		<div className="container max-w-3xl py-10">
-			<div className="h-52">
-				{!formData.picture && !formData.brand && !formData.model ? (
-					<Card className="w-full rounded-2xl h-full">
-						<CardContent className="flex flex-col md:flex-row gap-4 p-4 h-full">
-							<Skeleton className="h-full w-full md:w-80 rounded-xl" />
-							<div className="flex-1 space-y-3 p-2">
-								<Skeleton className="h-7 w-48" />
-								<Skeleton className="h-5 w-24" />
-								<Skeleton className="h-5 w-32" />
+			{loading ? (
+				<Card className="w-full rounded-2xl">
+					<CardContent className="flex flex-col md:flex-row gap-4 p-4">
+						<Skeleton className="h-40 w-full md:w-64 rounded-xl" />
+						<div className="flex-1 space-y-3">
+							<Skeleton className="h-6 w-48" />
+							<Skeleton className="h-4 w-32" />
+							<Skeleton className="h-6 w-24" />
+						</div>
+					</CardContent>
+				</Card>
+			) : (
+				<Card className="overflow-hidden rounded-2xl shadow-sm p-0 m-0">
+					<CardContent className="p-0">
+						<div className="flex flex-col md:flex-row">
+							<div className="w-full md:w-80 h-52 md:h-full overflow-hidden">
+								<img
+									src={formData.picture}
+									alt={`${formData.brand} ${formData.model}`}
+									className="h-full w-full object-cover block"
+								/>
 							</div>
-						</CardContent>
-					</Card>
-				) : (
-					<Card className="overflow-hidden rounded-2xl shadow-sm p-0 m-0 h-full">
-						<CardContent className="p-0 h-full">
-							<div className="flex flex-col md:flex-row h-full">
-								<div className="w-full md:w-80 h-full overflow-hidden">
-									{formData.picture ? (
-										<img
-											src={formData.picture}
-											alt={`${formData.brand} ${formData.model}`}
-											className="h-full w-full object-cover block"
-										/>
-									) : (
-										<Skeleton className="h-full w-full" />
-									)}
-								</div>
 
-								<div className="flex flex-1 flex-col justify-between p-4 md:p-6">
-									<div className="space-y-4">
-										<div className="flex flex-col gap-2">
-											<h2 className="text-xl md:text-2xl font-bold tracking-tight leading-tight">
-												{formData.brand || <Skeleton className="h-7 w-36" />} {formData.model}
-											</h2>
+							<div className="flex flex-1 flex-col justify-between p-4 md:p-6">
+								<div className="space-y-4">
+									<div className="flex flex-col gap-2">
+										<h2 className="text-xl md:text-2xl font-bold tracking-tight leading-tight">
+											{formData.brand} {formData.model}
+										</h2>
 
-											<div className="flex flex-wrap items-center gap-2">
-												{formData.category ? (
-													<Badge variant="secondary" className="text-xs md:text-sm px-3 py-1">
-														{formData.category}
-													</Badge>
-												) : (
-													<Skeleton className="h-5 w-20" />
-												)}
-											</div>
+										<div className="flex flex-wrap items-center gap-2">
+											<Badge variant="secondary" className="text-xs md:text-sm px-3 py-1">
+												{formData.category}
+											</Badge>
+
+											<span className="text-sm text-muted-foreground">ID: {id?.slice(-6)}</span>
 										</div>
+									</div>
 
-										<div className="text-sm md:text-base font-medium">
-											<span className="text-muted-foreground">Cena:</span>{' '}
-											{formData.pricePerDay ? (
-												<span className="font-semibold text-primary">{formData.pricePerDay} zł / dzień</span>
-											) : (
-												<Skeleton className="inline-block h-4 w-24" />
-											)}
-										</div>
+									<div className="text-sm md:text-base font-medium">
+										<span className="text-muted-foreground">Cena:</span>{' '}
+										<span className="font-semibold text-primary">{formData.pricePerDay} zł / dzień</span>
 									</div>
 								</div>
 							</div>
-						</CardContent>
-					</Card>
-				)}
-			</div>
+						</div>
+					</CardContent>
+				</Card>
+			)}
+
 			<Card className="mt-10">
 				<CardHeader>
 					<CardTitle className="text-2xl">Dodaj samochód</CardTitle>

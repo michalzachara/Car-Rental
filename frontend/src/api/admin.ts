@@ -1,6 +1,5 @@
 const API_URL = '/api/admin'
 
-
 export interface Car {
 	_id: string
 	brand: string
@@ -94,13 +93,46 @@ export async function addCar(data: CreateCarData, token: string | null): Promise
 	return res.json()
 }
 
-export async function deleteCar(id: string, token: string): Promise<ApiResponse<null>> {
+export async function deleteCar(id: string, token: string | null): Promise<ApiResponse<null>> {
 	const res = await fetch(`${API_URL}/cars/${id}`, {
 		method: 'DELETE',
 		headers: {
 			'Content-Type': 'application/json',
 			Authorization: `Bearer ${token}`,
 		},
+	})
+	return res.json()
+}
+
+export async function getAllCars(token: string | null): Promise<ApiResponse<Car[]>> {
+	const res = await fetch(`${API_URL}/all-cars`, {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`,
+		},
+	})
+
+	return res.json()
+}
+
+export async function getCarById(id: string, token: string | null): Promise<ApiResponse<Car>> {
+	const res = await fetch(`${API_URL}/cars/${id}`, {
+		headers: {
+			Authorization: `Bearer ${token}`,
+		},
+	})
+	return res.json()
+}
+
+export async function updateCar(id: string, data: CreateCarData, token: string | null): Promise<ApiResponse<Car>> {
+	const res = await fetch(`${API_URL}/cars/${id}`, {
+		method: 'PUT',
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`,
+		},
+		body: JSON.stringify(data),
 	})
 	return res.json()
 }
