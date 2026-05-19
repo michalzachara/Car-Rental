@@ -26,7 +26,7 @@ const CarSchema = new Schema(
 
 		seats: { type: Number, required: true },
 
-		pricePerHour: { type: Number, required: true },
+		pricePerDay: { type: Number, required: true },
 
 		picture: { type: String, required: true },
 	},

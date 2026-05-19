@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { Menu, Settings, LayoutDashboard, Car, Users } from 'lucide-react'
+import { Menu, Settings, LayoutDashboard, Car, Users, CarFront } from 'lucide-react'
 // 1. Import SheetTitle and SheetDescription (or SheetHeader if your shadcn setup uses it)
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
@@ -15,6 +15,7 @@ interface NavItem {
 const navItems: NavItem[] = [
 	{ href: '/admin', label: 'Panel', icon: LayoutDashboard },
 	{ href: '/admin/create-car', label: 'Dodaj auto', icon: Car },
+	{ href: '/admin/car-menegment', label: 'Zarzadzaj autami', icon: CarFront },
 	{ href: '/admin/reservations', label: 'Rezerwacje', icon: Users },
 ]
 

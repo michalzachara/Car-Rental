@@ -6,7 +6,7 @@ export const getCars = async (req, res) => {
 		const { startDate, endDate } = req.query
 
 		if (!startDate) {
-			const cars = await Car.find().select('picture brand model pricePerHour')
+			const cars = await Car.find().select('picture brand model pricePerDay')
 
 			return res.status(200).json({ success: true, cars })
 		}
@@ -25,7 +25,7 @@ export const getCars = async (req, res) => {
 
 		const cars = await Car.find({
 			_id: { $nin: reservedCars },
-		}).select('picture brand model pricePerHour')
+		}).select('picture brand model pricePerDay')
 
 		res.status(200).json({ success: true, cars })
 	} catch (error) {
@@ -81,7 +81,7 @@ export const createReservation = async (req, res) => {
 		const end = new Date(endDate)
 
 		const hours = Math.ceil((end - start) / (1000 * 60 * 60))
-		const totalPrice = hours * car.pricePerHour
+		const totalPrice = hours * car.pricePerDay
 
 		const reservation = await Reservation.create({
 			user: userId,

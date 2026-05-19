@@ -10,7 +10,7 @@ export interface Car {
 	fuelType: 'gaz' | 'benzyna' | 'disel'
 	gearbox?: 'manual' | 'automatyczna'
 	seats: number
-	pricePerHour: number
+	pricePerDay: number
 	picture: string
 	createdAt: string
 	updatedAt: string
@@ -82,7 +82,7 @@ export async function getActiveReservationsAdmin(token: string): Promise<ApiResp
 // Typ dla danych wysyłanych przy tworzeniu auta (bez pól generowanych przez MongoDB)
 export type CreateCarData = Omit<Car, '_id' | 'createdAt' | 'updatedAt'>
 
-export async function addCar(data: CreateCarData, token: string): Promise<ApiResponse<Car>> {
+export async function addCar(data: CreateCarData, token: string | null): Promise<ApiResponse<Car>> {
 	const res = await fetch(`${API_URL}/cars`, {
 		method: 'POST',
 		headers: {

@@ -60,9 +60,9 @@ export const getActiveReservationsAdmin = async (req, res) => {
 
 export const addCar = async (req, res) => {
 	try {
-		const { brand, model, category, productionYear, fuelType, gearbox, seats, pricePerHour, picture } = req.body
+		const { brand, model, category, productionYear, fuelType, gearbox, seats, pricePerDay, picture } = req.body
 
-		if (!brand || !model || !category || !productionYear || !fuelType || !seats || !pricePerHour || !picture) {
+		if (!brand || !model || !category || !productionYear || !fuelType || !seats || !pricePerDay || !picture) {
 			return res.status(400).json({
 				success: false,
 				message: 'Wszystkie wymagane pola muszą być uzupełnione',
@@ -83,7 +83,7 @@ export const addCar = async (req, res) => {
 			})
 		}
 
-		if (pricePerHour <= 0) {
+		if (pricePerDay <= 0) {
 			return res.status(400).json({
 				success: false,
 				message: 'Cena musi być większa od 0',
@@ -98,7 +98,7 @@ export const addCar = async (req, res) => {
 			fuelType,
 			gearbox,
 			seats,
-			pricePerHour,
+			pricePerDay,
 			picture,
 		})
 

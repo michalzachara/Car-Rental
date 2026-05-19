@@ -13,3 +13,21 @@ export function RequireAdmin() {
 
 	return <Outlet />
 }
+
+export function RequireAuth() {
+	const { isLoggedIn } = useAuthStore()
+	if (!isLoggedIn()) {
+		return <Navigate to="/auth/login" replace />
+	}
+
+	return <Outlet />
+}
+
+export function RequireNotLogIn() {
+	const { isLoggedIn } = useAuthStore()
+	if (isLoggedIn()) {
+		return <Navigate to="/" replace />
+	}
+
+	return <Outlet />
+}
