@@ -17,11 +17,13 @@ import { Skeleton } from '@/components/ui/skeleton'
 export default function AddCarForm() {
 	const [loading, setLoading] = useState(false)
 
-	const [formData, setFormData] = useState<Omit<CreateCarData, 'seats' | 'pricePerDay' | 'productionYear'> & {
-    seats: number | ''
-    pricePerDay: number | ''
-    productionYear: number | ''
-}>({
+	const [formData, setFormData] = useState<
+		Omit<CreateCarData, 'seats' | 'pricePerDay' | 'productionYear'> & {
+			seats: number | ''
+			pricePerDay: number | ''
+			productionYear: number | ''
+		}
+	>({
 		brand: '',
 		model: '',
 		category: 'miejskie',
@@ -36,18 +38,18 @@ export default function AddCarForm() {
 	const [errors, setErrors] = useState<Record<string, string>>({})
 	const { token } = useAuthStore()
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type } = e.target
+		const { name, value, type } = e.target
 
-    setFormData({
-        ...formData,
-        [name]: type === 'number' ? (value === '' ? '' : Number(value)) : value,
-    })
+		setFormData({
+			...formData,
+			[name]: type === 'number' ? (value === '' ? '' : Number(value)) : value,
+		})
 
-    setErrors({
-        ...errors,
-        [name]: '',
-    })
-}
+		setErrors({
+			...errors,
+			[name]: '',
+		})
+	}
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()

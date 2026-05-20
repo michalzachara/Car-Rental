@@ -12,8 +12,9 @@ import AdminLayout from './layout/AdminLayout'
 import CreateCar from './pages/Admin/CreateCar'
 import Reservations from './pages/Admin/Reservations'
 import { RequireAdmin, RequireNotLogIn, RequireAuth } from './components/guard/guard'
-import CarMenegment from './pages/Admin/CarMenegment';
-import EditCarForm from './pages/Admin/EditCarForm';
+import CarMenegment from './pages/Admin/CarMenegment'
+import EditCarForm from './pages/Admin/EditCarForm'
+import CarInfo from './pages/CarInfo'
 
 export const router = createBrowserRouter([
 	{
@@ -60,6 +61,10 @@ export const router = createBrowserRouter([
 					{
 						path: 'my-reservations',
 						Component: MyReservations,
+					},
+					{
+						path: 'cars/:id',
+						Component: CarInfo,
 					},
 				],
 			},

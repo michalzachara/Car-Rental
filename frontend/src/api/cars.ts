@@ -13,7 +13,7 @@ export interface Car {
 	fuelType: FuelType
 	gearbox?: GearboxType
 	seats: number
-	pricePerHour: number
+	pricePerDay: number
 	picture: string
 	createdAt?: string
 	updatedAt?: string
@@ -51,24 +51,45 @@ export interface CancelResponse {
 	message: string
 }
 
-export const getCars = async (startDate?: string, endDate?: string): Promise<CarsResponse> => {
-	const url = new URL(API_URL)
-
-	if (startDate) url.searchParams.append('startDate', startDate)
-	if (endDate) url.searchParams.append('endDate', endDate)
-
-	const response = await fetch(url.toString())
-
-	if (!response.ok) {
-		const errorData = await response.json().catch(() => ({}))
-		throw new Error(errorData.message || `Błąd pobierania aut: ${response.statusText}`)
-	}
-
-	return response.json()
+export interface GetCarsFilters {
+  startDate?: string
+  endDate?: string
+  search?: string
+  category?: CarCategory | ''
+  fuelType?: FuelType | ''
+  gearbox?: GearboxType | ''
+  minPrice?: string
+  maxPrice?: string
 }
 
-export const getCarById = async (id: string): Promise<SingleCarResponse> => {
-	const response = await fetch(`${API_URL}/${id}`)
+export const getCars = async (filters: GetCarsFilters = {}): Promise<CarsResponse> => {
+  let url = API_URL
+  const params = new URLSearchParams()
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      params.append(key, value.toString())
+    }
+  })
+
+  if (params.toString()) {
+    url += `?${params.toString()}`
+  }
+
+  const response = await fetch(url)
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}))
+    throw new Error(errorData.message || `Błąd pobierania aut: ${response.statusText}`)
+  }
+
+  return response.json()
+}
+
+export const getCarById = async (id: string, token: string | null): Promise<SingleCarResponse> => {
+	const response = await fetch(`${API_URL}/${id}`, {
+		headers: token ? { Authorization: `Bearer ${token}` } : {},
+	})
 
 	if (!response.ok) {
 		const errorData = await response.json().catch(() => ({}))
@@ -82,7 +103,7 @@ export const createReservation = async (
 	carId: string,
 	startDate: string,
 	endDate: string,
-	token?: string,
+	token?: string | null,
 ): Promise<ReservationResponse> => {
 	const headers: Record<string, string> = {
 		'Content-Type': 'application/json',
