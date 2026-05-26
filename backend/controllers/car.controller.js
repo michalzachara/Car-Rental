@@ -2,47 +2,47 @@ import Car from '../models/car.model.js'
 import Reservation from '../models/reservation.model.js'
 
 export const getCars = async (req, res) => {
-  try {
-    const { startDate, endDate, search, category, fuelType, gearbox, minPrice, maxPrice } = req.query
+	try {
+		const { startDate, endDate, search, category, fuelType, gearbox, minPrice, maxPrice } = req.query
 
-    const filter = {}
+		const filter = {}
 
-    if (search) {
-      filter.$or = [
-        { brand: { $regex: search, $options: 'i' } },
-        { model: { $regex: search, $options: 'i' } },
-      ]
-    }
-    if (category) filter.category = category
-    if (fuelType) filter.fuelType = fuelType
-    if (gearbox) filter.gearbox = gearbox
-    if (minPrice || maxPrice) {
-      filter.pricePerDay = {}
-      if (minPrice) filter.pricePerDay.$gte = Number(minPrice)
-      if (maxPrice) filter.pricePerDay.$lte = Number(maxPrice)
-    }
+		if (search) {
+			filter.$or = [{ brand: { $regex: search, $options: 'i' } }, { model: { $regex: search, $options: 'i' } }]
+		}
+		if (category) filter.category = category
+		if (fuelType) filter.fuelType = fuelType
+		if (gearbox) filter.gearbox = gearbox
+		if (minPrice || maxPrice) {
+			filter.pricePerDay = {}
+			if (minPrice) filter.pricePerDay.$gte = Number(minPrice)
+			if (maxPrice) filter.pricePerDay.$lte = Number(maxPrice)
+		}
 
-    if (!startDate) {
-      const cars = await Car.find(filter).select('picture brand model pricePerDay category fuelType gearbox seats productionYear')
-      return res.status(200).json({ success: true, cars })
-    }
+		if (!startDate) {
+			const cars = await Car.find(filter).select(
+				'picture brand model pricePerDay category fuelType gearbox seats productionYear',
+			)
+			return res.status(200).json({ success: true, cars })
+		}
 
-    const start = new Date(startDate)
-    const end = endDate ? new Date(endDate) : start
+		const start = new Date(startDate)
+		const end = endDate ? new Date(endDate) : start
 
-    const reservedCars = await Reservation.find({
-      $or: [{ startDate: { $lte: end }, endDate: { $gte: start } }],
-    }).distinct('car')
+		const reservedCars = await Reservation.find({
+			status: 'aktywna',
+			startDate: { $lte: end },
+			endDate: { $gte: start },
+		}).distinct('car')
 
-    const cars = await Car.find({
-      ...filter,
-      _id: { $nin: reservedCars },
-    }).select('picture brand model pricePerDay category fuelType gearbox seats productionYear')
-
-    res.status(200).json({ success: true, cars })
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message })
-  }
+		const cars = await Car.find({
+			...filter,
+			_id: { $nin: reservedCars },
+		}).select('picture brand model pricePerDay category fuelType gearbox seats productionYear')
+		res.status(200).json({ success: true, cars })
+	} catch (error) {
+		res.status(500).json({ success: false, message: error.message })
+	}
 }
 
 export const getCarById = async (req, res) => {

@@ -52,38 +52,38 @@ export interface CancelResponse {
 }
 
 export interface GetCarsFilters {
-  startDate?: string
-  endDate?: string
-  search?: string
-  category?: CarCategory | ''
-  fuelType?: FuelType | ''
-  gearbox?: GearboxType | ''
-  minPrice?: string
-  maxPrice?: string
+	startDate?: string
+	endDate?: string
+	search?: string
+	category?: CarCategory | ''
+	fuelType?: FuelType | ''
+	gearbox?: GearboxType | ''
+	minPrice?: string
+	maxPrice?: string
 }
 
 export const getCars = async (filters: GetCarsFilters = {}): Promise<CarsResponse> => {
-  let url = API_URL
-  const params = new URLSearchParams()
+	let url = API_URL
+	const params = new URLSearchParams()
 
-  Object.entries(filters).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== '') {
-      params.append(key, value.toString())
-    }
-  })
+	Object.entries(filters).forEach(([key, value]) => {
+		if (value !== undefined && value !== null && value !== '') {
+			params.append(key, value.toString())
+		}
+	})
 
-  if (params.toString()) {
-    url += `?${params.toString()}`
-  }
+	if (params.toString()) {
+		url += `?${params.toString()}`
+	}
 
-  const response = await fetch(url)
+	const response = await fetch(url)
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}))
-    throw new Error(errorData.message || `Błąd pobierania aut: ${response.statusText}`)
-  }
+	if (!response.ok) {
+		const errorData = await response.json().catch(() => ({}))
+		throw new Error(errorData.message || `Błąd pobierania aut: ${response.statusText}`)
+	}
 
-  return response.json()
+	return response.json()
 }
 
 export const getCarById = async (id: string, token: string | null): Promise<SingleCarResponse> => {
@@ -136,8 +136,7 @@ export const cancelReservation = async (reservationId: string, token?: string): 
 		headers['Authorization'] = `Bearer ${token}`
 	}
 
-	// Upewnij się, że ten endpoint (np. '/cancel') zgadza się z Twoim routerem Express
-	const response = await fetch(`${API_URL}/cancel`, {
+	const response = await fetch(`${API_URL}/delete-reservation`, {
 		method: 'POST',
 		headers,
 		body: JSON.stringify({ reservationId }),
